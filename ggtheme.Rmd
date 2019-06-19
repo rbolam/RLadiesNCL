@@ -1,0 +1,80 @@
+---
+title: "ggtheme"
+date: "2019/06/02 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Ensuring your charts are accessible to colour blind people
+
+```{r}
+library(ggplot2)
+library(ggthemes)
+
+p <- ggplot(mtcars) + geom_point(aes(x = wt, y = mpg,
+         colour = factor(gear))) + facet_wrap(~am)
+
+p + theme_igray() + scale_colour_colorblind()
+```
+---
+
+# Stata theme
+
+```{r }
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+bxp <- ggplot(ToothGrowth, aes(x = dose, y = len)) +
+  geom_boxplot(aes(fill = dose))
+
+bxp + theme_stata() + scale_fill_stata()
+```
+
+---
+
+# Economist theme
+
+If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
+
+```{r}
+    p <- ggplot(mtcars) +
+         geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
+         facet_wrap(~am) +
+         # Economist puts x-axis labels on the right-hand side
+         scale_y_continuous(position = "right")
+    ## Standard
+    p + theme_economist() +
+      scale_colour_economist()
+    # Change axis lines to vertical
+    p + theme_economist(horizontal = FALSE) +
+        scale_colour_economist() +
+        coord_flip()
+    ## White panel/light gray background
+    p + theme_economist_white() +
+        scale_colour_economist()
+    ## All white variant
+    p + theme_economist_white(gray_bg = FALSE) +
+        scale_colour_economist()
+```
+
+---
+
+```{r excel theme}
+p <- ggplot(mtcars) +
+         geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
+         facet_wrap(~am)
+    p + theme_excel_new() + scale_colour_excel_new()
+```
+
+---
+```{r govstyles theme}
+p <- ggplot(mtcars) +
+         geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
+         facet_wrap(~am)
+    p + theme_excel_new() + scale_colour_excel_new()
+```
+
+---
