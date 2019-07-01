@@ -1,0 +1,52 @@
+---
+title: "datavis_advanced_tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## A completely custom ggplot2 theme
+
+You can make customised plots by changing the theme. This will not change how the data are displayed, but how the plot itself looks. It is useful if you want all plots in your work to have the same look.
+
+
+Here is an example of a customised plot, with annotation for the code:
+
+```{r}
+ggplot(data = iris, aes(x = Sepal.Length, y = Petal.Length)) +
+  geom_point() +
+  facet_wrap( ~ Species) +
+  scale_colour_gradient(low = "green", high = "blue", name = "Petal width") +
+  # this is similar to a plot we made earlier
+  
+  theme(
+  text = element_text(size = 14),
+  # this changes the font size to 14
+  
+  axis.text = element_text(angle = 30, size = rel(0.8)),
+  # this changes the angle of the axis labels (often useful for bar plots), 
+  # and makes the font slightly smaller than the rest of the plot
+  
+  axis.ticks = element_line(colour = "black"),
+  
+  plot.background = element_rect(fill = "white"),
+  #this is the colour behind the plot
+  
+  panel.background = element_rect(fill = "mintcream"),
+  # this is the colour inside the plots
+  
+  panel.border = element_rect(fill = NA, colour = "black"),
+  
+  panel.grid.major = element_line(colour = "lightskyblue3", size = .1),
+  
+  panel.grid.minor = element_line(colour = "mintcream"),
+  # the minor grid lines - same colour as each panel
+  
+  strip.background = element_rect(
+  fill = "lightskyblue2",
+  colour = "black",
+  size = 0.5))
+  #this refers to the box with the heading above each facet
+```
