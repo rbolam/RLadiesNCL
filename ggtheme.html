@@ -26,7 +26,7 @@ p &lt;- ggplot(mtcars) + geom_point(aes(x = wt, y = mpg,
 p + theme_igray() + scale_colour_colorblind()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+&lt;img src="ggtheme_files/figure-html/unnamed-chunk-2-1.png" width="350" /&gt;
 ---
 # Stata theme
 
@@ -38,55 +38,24 @@ bxp &lt;- ggplot(ToothGrowth, aes(x = dose, y = len)) +
 bxp + theme_stata() + scale_fill_stata()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+&lt;img src="ggtheme_files/figure-html/unnamed-chunk-3-1.png" width="350" /&gt;
 
 ---
 
 # Economist theme
 
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
+
 
 
 ```r
-    p &lt;- ggplot(mtcars) +
-         geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
-         facet_wrap(~am) +
-         # Economist puts x-axis labels on the right-hand side
-         scale_y_continuous(position = "right")
     ## Standard
-    p + theme_economist() +
-      scale_colour_economist()
+    p + theme_economist() + scale_colour_economist()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
-
-```r
-    # Change axis lines to vertical
-    p + theme_economist(horizontal = FALSE) +
-        scale_colour_economist() +
-        coord_flip()
-```
-
-![](ggtheme_files/figure-html/unnamed-chunk-4-2.png)&lt;!-- --&gt;
-
-```r
-    ## White panel/light gray background
-    p + theme_economist_white() +
-        scale_colour_economist()
-```
-
-![](ggtheme_files/figure-html/unnamed-chunk-4-3.png)&lt;!-- --&gt;
-
-```r
-    ## All white variant
-    p + theme_economist_white(gray_bg = FALSE) +
-        scale_colour_economist()
-```
-
-![](ggtheme_files/figure-html/unnamed-chunk-4-4.png)&lt;!-- --&gt;
+&lt;img src="ggtheme_files/figure-html/unnamed-chunk-5-1.png" width="350" /&gt;
 
 ---
-
+# Excel theme
 
 ```r
 p &lt;- ggplot(mtcars) +
@@ -95,18 +64,12 @@ p &lt;- ggplot(mtcars) +
     p + theme_excel_new() + scale_colour_excel_new()
 ```
 
-![](ggtheme_files/figure-html/excel theme-1.png)&lt;!-- --&gt;
+&lt;img src="ggtheme_files/figure-html/excel theme-1.png" width="350" /&gt;
 
 ---
-
-```r
-p &lt;- ggplot(mtcars) +
-         geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
-         facet_wrap(~am)
-    p + theme_excel_new() + scale_colour_excel_new()
-```
-
-![](ggtheme_files/figure-html/govstyles theme-1.png)&lt;!-- --&gt;
+# Govstyle theme
+Graphs in official statistics have to look a certain way. We need to ensure they meet the Government Statistical Service standards.
+![](figure1d.png)
 
 ---
     </textarea>

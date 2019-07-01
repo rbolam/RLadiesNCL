@@ -15,7 +15,7 @@ library(ggplot2)
 library(ggthemes)
 ```
 
-```{r}
+```{r, out.width=350}
 p <- ggplot(mtcars) + geom_point(aes(x = wt, y = mpg,
          colour = factor(gear)))
 
@@ -23,7 +23,7 @@ p + theme_igray() + scale_colour_colorblind()
 ```
 ---
 # Stata theme
-```{r }
+```{r, out.width=350}
 ToothGrowth$dose <- as.factor(ToothGrowth$dose)
 bxp <- ggplot(ToothGrowth, aes(x = dose, y = len)) +
   geom_boxplot(aes(fill = dose))
@@ -35,32 +35,22 @@ bxp + theme_stata() + scale_fill_stata()
 
 # Economist theme
 
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r}
-    p <- ggplot(mtcars) +
+```{r,include=FALSE}
+   p <- ggplot(mtcars) +
          geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
          facet_wrap(~am) +
          # Economist puts x-axis labels on the right-hand side
          scale_y_continuous(position = "right")
+```
+
+```{r, out.width=350}
     ## Standard
-    p + theme_economist() +
-      scale_colour_economist()
-    # Change axis lines to vertical
-    p + theme_economist(horizontal = FALSE) +
-        scale_colour_economist() +
-        coord_flip()
-    ## White panel/light gray background
-    p + theme_economist_white() +
-        scale_colour_economist()
-    ## All white variant
-    p + theme_economist_white(gray_bg = FALSE) +
-        scale_colour_economist()
+    p + theme_economist() + scale_colour_economist()
 ```
 
 ---
-
-```{r excel theme}
+# Excel theme
+```{r excel theme, out.width=350}
 p <- ggplot(mtcars) +
          geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
          facet_wrap(~am)
@@ -68,11 +58,8 @@ p <- ggplot(mtcars) +
 ```
 
 ---
-```{r govstyles theme}
-p <- ggplot(mtcars) +
-         geom_point(aes(x = wt, y = mpg, colour = factor(gear))) +
-         facet_wrap(~am)
-    p + theme_excel_new() + scale_colour_excel_new()
-```
+# Govstyle theme
+Graphs in official statistics have to look a certain way. We need to ensure they meet the Government Statistical Service standards.
+![](figure1d.png)
 
 ---
