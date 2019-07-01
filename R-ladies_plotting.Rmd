@@ -62,8 +62,9 @@ ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +
   <GEOM_FUNCTION>()
 
 ```
-  
+
 <iframe src="https://giphy.com/embed/kwafZfFxw8WnC" width="480" height="255" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/shrek-kwafZfFxw8WnC">via GIPHY</a></p>
+
 
   
 ---  
@@ -277,4 +278,6 @@ Wickham, H. and Grolemund, G. (2016) R for data science. Free at http://r4ds.had
 Another useful book is this one: http://www.cookbook-r.com/Graphs/
 
 The evolution of a ggplot: 
-https://cedricshcerer.netlify.com/2019/05/17/the-evolution-of-a-ggplot-ep.-1/
+
+https://cedricscherer.netlify.com/2019/05/17/the-evolution-of-a-ggplot-ep.-1/
+
