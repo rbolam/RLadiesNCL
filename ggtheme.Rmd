@@ -9,22 +9,20 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
-
-# Ensuring your charts are accessible to colour blind people
-
-```{r}
+# Accessibility for colour blind people
+```{r include =FALSE}
 library(ggplot2)
 library(ggthemes)
+```
 
+```{r}
 p <- ggplot(mtcars) + geom_point(aes(x = wt, y = mpg,
-         colour = factor(gear))) + facet_wrap(~am)
+         colour = factor(gear)))
 
 p + theme_igray() + scale_colour_colorblind()
 ```
 ---
-
 # Stata theme
-
 ```{r }
 ToothGrowth$dose <- as.factor(ToothGrowth$dose)
 bxp <- ggplot(ToothGrowth, aes(x = dose, y = len)) +

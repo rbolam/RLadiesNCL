@@ -11,40 +11,24 @@
 class: center, middle, inverse, title-slide
 
 # ggtheme
-### 2019/07/02 (updated: 2019-06-19)
+### 2019/06/02 (updated: 2019-07-01)
 
 ---
 
+# Accessibility for colour blind people
 
-# Ensuring your charts are accessible to colour blind people
 
-
-```r
-library(ggplot2)
-```
-
-```
-## Registered S3 methods overwritten by 'ggplot2':
-##   method         from 
-##   [.quosures     rlang
-##   c.quosures     rlang
-##   print.quosures rlang
-```
 
 ```r
-library(ggthemes)
-
 p &lt;- ggplot(mtcars) + geom_point(aes(x = wt, y = mpg,
-         colour = factor(gear))) + facet_wrap(~am)
+         colour = factor(gear)))
 
 p + theme_igray() + scale_colour_colorblind()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+![](ggtheme_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
 ---
-
 # Stata theme
-
 
 ```r
 ToothGrowth$dose &lt;- as.factor(ToothGrowth$dose)
@@ -54,7 +38,7 @@ bxp &lt;- ggplot(ToothGrowth, aes(x = dose, y = len)) +
 bxp + theme_stata() + scale_fill_stata()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+![](ggtheme_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -74,7 +58,7 @@ If you want to generate a table, make sure it is in the HTML format (instead of 
       scale_colour_economist()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+![](ggtheme_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
 
 ```r
     # Change axis lines to vertical
@@ -83,7 +67,7 @@ If you want to generate a table, make sure it is in the HTML format (instead of 
         coord_flip()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-3-2.png)&lt;!-- --&gt;
+![](ggtheme_files/figure-html/unnamed-chunk-4-2.png)&lt;!-- --&gt;
 
 ```r
     ## White panel/light gray background
@@ -91,7 +75,7 @@ If you want to generate a table, make sure it is in the HTML format (instead of 
         scale_colour_economist()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-3-3.png)&lt;!-- --&gt;
+![](ggtheme_files/figure-html/unnamed-chunk-4-3.png)&lt;!-- --&gt;
 
 ```r
     ## All white variant
@@ -99,7 +83,7 @@ If you want to generate a table, make sure it is in the HTML format (instead of 
         scale_colour_economist()
 ```
 
-![](ggtheme_files/figure-html/unnamed-chunk-3-4.png)&lt;!-- --&gt;
+![](ggtheme_files/figure-html/unnamed-chunk-4-4.png)&lt;!-- --&gt;
 
 ---
 
