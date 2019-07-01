@@ -172,8 +172,6 @@ class: inverse, center, middle
 # Species count by year
 
 
-
-
 ```r
 shark_df %&gt;%
   # Just one instance of each species per year
@@ -303,8 +301,7 @@ shark_label_gg &lt;- shark_missing_gg +
 *      aes(label = scientificName),
 *      # Avoids ambiguity or overlapping with manual labels 
 *      nudge_x = 22, 
-*      nudge_y = ifelse((shark_label_df$scientificName == species |
-*                        shark_label_df$pre &gt; 500), 0, 15), 
+*      nudge_y = ifelse(shark_label_df$scientificName == species, 0, 15), 
 *      # Point padding stops lines obscuring points
 *      size = 9, segment.size = 0.75, point.padding = 0.75)
 ```
@@ -325,17 +322,19 @@ for (i in 1:nrow(shark_absent_df)) {
       # Add custom annotation at calculated location
       # Using the length of the string as annotate puts the middle
       # of the text at the given location
-*     annotate("text", x = -300 +
-*               (nchar(shark_absent_df[i,]$scientificName) * 18),
-*               y = shark_absent_df[i,]$post + 15, size = 9,
+*     annotate("text", 
+*               x = (nchar(shark_absent_df[i,]$scientificName) * 2) - 12,
+*               y = shark_absent_df[i,]$post + 70,
+*               size = 9,
 *               label = shark_absent_df[i,]$scientificName)
   } else {
     # Went extinct
     shark_label_gg &lt;- shark_label_gg +
       # Add custom annotation at calculated location
-*     annotate("text", x = shark_absent_df[i,]$pre - 80 +
-*               (nchar(shark_absent_df[i,]$scientificName) * 18), 
-*               y = -15, size = 9,
+*     annotate("text", x = shark_absent_df[i,]$pre +
+*               (nchar(shark_absent_df[i,]$scientificName) * 2) + 25, 
+*               y = ifelse(shark_absent_df[i,]$pre &lt; 50, -210, -110), 
+*               size = 9,
 *               label = shark_absent_df[i,]$scientificName) 
   }
 }
@@ -358,7 +357,7 @@ Those `NA`s are graphed as though they were negative values.
 shark_all_labels_df &lt;- shark_absent_df %&gt;%
   # Replace all the NA values in the pre and post columns
   # This will be a bit approximate because of jitter
-  tidyr::replace_na(list(pre = -175, post = -25)) %&gt;%
+  tidyr::replace_na(list(pre = -35, post = -175)) %&gt;%
   bind_rows(shark_label_df)
 ```
 

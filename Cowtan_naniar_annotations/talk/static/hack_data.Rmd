@@ -34,36 +34,35 @@ long_minmax <- c(9.90, 12.85)
 ```
 
 ```{r generate_filenames}
-filename_ds <- paste0(filepath, "occ_shark_old.csv")
-filename_new <- paste0(filepath, "shark.csv")
+filename_ds <- paste0(filepath, "shark.csv")
+filename_new <- paste0(filepath, "shark_new.csv")
 ```
 
 ```{r read_shark, echo=FALSE}
-# Don't query OBIS if we don't have to
-if(!file.exists(filename_ds)) {
-  shark_df <- occurrence(datasetid = dataset_id)
-  write_csv(shark_df, filename_ds)
-} else {
-  # cols() guesses wrong if rows at the top are NA
-  shark_df <- read_csv(filename_ds, col_types = cols(
-    section = col_character(), subsection = col_character(),
-    subtribe = col_character(),
-    sectionid = col_double(), subsectionid = col_double(),
-    subtribeid = col_double()
-  ))
-}
+# cols() guesses wrong if rows at the top are NA
+shark_df <- read_csv(filename_ds, col_types = cols())
+
 ```
 
 ```{r}
-names(shark_df)
+# Restrictions
+min_year <- 1880
+# Within the rectangle containing the Kattegat
+lat_minmax <- c(54.75, 57.95)
+long_minmax <- c(9.90, 12.85)
 
 ```
 
 
 ```{r write}
 shark_df %>%
-  select(scientificName, year, decimalLatitude, decimalLongitude) %>%
-  filter(str_detect(scientificName, "^[A-Z][a-z]+[:space:][a-z]+$")) %>%
+  # Remove out of range latitude and longitude values
+  filter(decimalLatitude >= lat_minmax[1] & 
+        decimalLatitude <= lat_minmax[2]) %>%
+  filter(decimalLongitude >= long_minmax[1] & 
+        decimalLongitude <= long_minmax[2]) %>%
+  # Don't include years before min_year
+  filter(year >= min_year) %>%
   write_csv(filename_new)
 ```
 

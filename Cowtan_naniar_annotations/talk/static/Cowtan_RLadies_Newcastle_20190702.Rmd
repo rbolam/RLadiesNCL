@@ -78,7 +78,15 @@ filename_ds <- paste0(filepath, "shark.csv")
 # Don't query OBIS if we don't have to
 if(!file.exists(filename_ds)) {
   shark_df <- occurrence(datasetid = dataset_id) %>%
-    select(scientificName, year, decimalLatitude, decimalLongitude)
+    select(scientificName, year, decimalLatitude, decimalLongitude) %>%
+  # Remove out of range latitude and longitude values
+  filter(decimalLatitude >= lat_minmax[1] & 
+        decimalLatitude <= lat_minmax[2]) %>%
+  filter(decimalLongitude >= long_minmax[1] & 
+        decimalLongitude <= long_minmax[2]) %>%
+  # Don't include years before min_year
+  filter(year >= min_year) 
+  # Save file
   write_csv(shark_df, filename_ds)
 } else {
   # cols() guesses wrong if rows at the top are NA
@@ -213,23 +221,6 @@ class: inverse, center, middle
 
 # Species count by year
 
-```{r clean_data}
-shark_df <- shark_df %>%
-  # Get rid of rows where any of the range identifiers are NA
-  # - do I need species or species_ID in here?
-  filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)
-    & !is.na(scientificName) & !is.na(year)) %>%
-  # Remove out of range latitude and longitude values
-  filter(decimalLatitude >= lat_minmax[1] & 
-        decimalLatitude <= lat_minmax[2]) %>%
-  filter(decimalLongitude >= long_minmax[1] & 
-        decimalLongitude <= long_minmax[2]) %>%
-  # Don't include years before min_year
-  filter(year >= min_year) %>%
-  # Only need these this time
-  select(scientificName, year)
-```
-
 ```{r no_species, fig.height = 6, fig.width = 15, fig.cap = "Species count by year for the Kattegat region in the SHARK dataset, showing a decline around 1992", echo = TRUE}
 shark_df %>%
   # Just one instance of each species per year
@@ -258,8 +249,8 @@ target_year <- 1992
 shark_gg_df <- shark_df %>%
   # Up to and including target year or after?
   mutate(pre_post = case_when(
-    year > target_year ~ "pre",
-    TRUE ~ "post")) %>%
+    year > target_year ~ "post",
+    TRUE ~ "pre")) %>%
   select(scientificName, pre_post) %>%
   # Group the data by pre or post target_year
   group_by(pre_post) %>%
@@ -344,16 +335,16 @@ shark_label_df <- shark_gg_df %>%
   # Species of interest
   dplyr::filter(scientificName == species | 
         # Successful post-target_year
-        (post > 150 & post > pre) | 
+        (pre > 150 & pre > post) | 
         # Strong decline post-target_year from high base
-        (pre > 500 & (pre / post) > 15))
+        (post > 500 & (post / pre) > 15))
 
 # Particularly noticeable extinction and colonisation points
 shark_absent_df <- shark_gg_df %>%
   # Only want observations where either pre or post are missing
   dplyr::filter(!complete.cases(pre, post)) %>%
   # Thresholds determined by eye
-  dplyr::filter(post > 35 | pre > 500) 
+  dplyr::filter(pre > 35 | post > 500) 
 
 shark_all_labels_df <- bind_rows(shark_label_df, shark_absent_df)
 ```
@@ -398,8 +389,7 @@ shark_label_gg <- shark_missing_gg +
       aes(label = scientificName),
       # Avoids ambiguity or overlapping with manual labels 
       nudge_x = 22, 
-      nudge_y = ifelse((shark_label_df$scientificName == species |
-                        shark_label_df$pre > 500), 0, 15), 
+      nudge_y = ifelse(shark_label_df$scientificName == species, 0, 15), 
       # Point padding stops lines obscuring points
       size = 9, segment.size = 0.75, point.padding = 0.75)}}
 ```
@@ -419,17 +409,19 @@ for (i in 1:nrow(shark_absent_df)) {
       # Add custom annotation at calculated location
       # Using the length of the string as annotate puts the middle
       # of the text at the given location
-     {{annotate("text", x = -300 +
-               (nchar(shark_absent_df[i,]$scientificName) * 18),
-               y = shark_absent_df[i,]$post + 15, size = 9,
+     {{annotate("text", 
+               x = (nchar(shark_absent_df[i,]$scientificName) * 2) - 12,
+               y = shark_absent_df[i,]$post + 70,
+               size = 9,
                label = shark_absent_df[i,]$scientificName)}}
   } else {
     # Went extinct
     shark_label_gg <- shark_label_gg +
       # Add custom annotation at calculated location
-     {{annotate("text", x = shark_absent_df[i,]$pre - 80 +
-               (nchar(shark_absent_df[i,]$scientificName) * 18), 
-               y = -15, size = 9,
+     {{annotate("text", x = shark_absent_df[i,]$pre +
+               (nchar(shark_absent_df[i,]$scientificName) * 2) + 25, 
+               y = ifelse(shark_absent_df[i,]$pre < 50, -210, -110), 
+               size = 9,
                label = shark_absent_df[i,]$scientificName)}} 
   }
 }
@@ -453,7 +445,7 @@ Those `NA`s are graphed as though they were negative values.
 shark_all_labels_df <- shark_absent_df %>%
   # Replace all the NA values in the pre and post columns
   # This will be a bit approximate because of jitter
-  tidyr::replace_na(list(pre = -175, post = -25)) %>%
+  tidyr::replace_na(list(pre = -35, post = -175)) %>%
   bind_rows(shark_label_df)
 ```
 
@@ -473,8 +465,7 @@ shark_label_gg <- shark_missing_gg +
       aes(label = scientificName),
       # Avoids ambiguity or overlapping with manual labels 
       nudge_x = 22, 
-      nudge_y = ifelse((shark_all_labels_df$scientificName == species |
-                        shark_all_labels_df$pre > 500), 0, 15), 
+      nudge_y = 15, 
       # Point padding stops lines obscuring points
       size = 9, segment.size = 0.75, point.padding = 0.75)}}
 
