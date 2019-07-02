@@ -1,11 +1,98 @@
 ---
-title: "datavis_advanced_tutorial"
-output: html_document
+title: "Datavis - advanced tutorial"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(ggplot2)
+library(gganimate)
+library(gapminder)
 ```
+
+This is part 2 - if you are comfortable with everything in part 1, you can move onto this tutorial.  
+
+# Building an animated plot
+
+We will start building a plot with geom_point:
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+**Exercise**: Change the size of the points according to the variable pop, and the colour according to the continent.
+
+Now we will make the points a bit more transparent, by setting alpha. We will also change the colour of the points:
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
+  geom_point(alpha = .7) +
+  scale_colour_brewer(palette = "Dark2")
+```
+
+**Exercise**: Change the palette to a different one. Check http://colorbrewer2.org/ for more palettes, and pick one that is colour-blind friendly.
+
+Now we will make subplots, by splitting the data according to the continent:  
+
+```{r}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
+  geom_point(alpha = .7) +
+  facet_wrap(~ continent) +  # we need ~ in front of the variable, as we could facet by another one
+  # then the format would be facet_wrap(variable1 ~ variable2)
+  scale_colour_brewer(palette = "Dark2")
+```
+
+
+We will change a few more things, to make sure this will look really nice in the end:
+
+```{r }
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
+  geom_point(alpha = .7) +
+  facet_wrap(~ continent) +
+  scale_colour_brewer(palette = "Dark2") +
+  scale_size(name = "Population") +
+  guides(colour = "none") +
+  scale_x_log10() +
+  labs(x = 'GDP per capita', y = 'Life expectancy')
+```
+
+**Exercise**: What happens in each of the last 4 lines of code?
+
+Finally, we will add the code to make the plot show each year individually. We use the function `transition_time` from the `gganimate` package:
+
+```{r, eval = FALSE}
+ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
+  geom_point(alpha = .7) +
+  facet_wrap(~ continent) +
+  scale_colour_brewer(palette = "Dark2") +
+  scale_size(name = "Population") +
+  guides(colour = "none") +
+  scale_x_log10() +
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'Life expectancy') +
+  transition_time(year)
+```
+
+We can also save the output as a gif:
+
+```{r, eval = FALSE}
+p <- ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
+  geom_point(alpha = .7) +
+  facet_wrap(~ continent) +
+  scale_colour_brewer(palette = "Dark2") +
+  scale_size(name = "Population") +
+  guides(colour = "none") +
+  scale_x_log10() +
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'Life expectancy') +
+  transition_time(year)
+p <- animate(p)
+anim_save("YayImadeaGIF.gif")
+```
+
+
 
 # A completely custom ggplot2 theme
 
@@ -51,7 +138,7 @@ ggplot(data = iris, aes(x = Sepal.Length, y = Petal.Length)) +
   #this refers to the box with the heading above each facet
 ```
 
-**Exercise: make a nice looking theme which you cna use for your own work**
+**Exercise: make a nice looking theme which you can use for your own work**
 
 # Making world maps in R (Chloropleth maps)
 
@@ -68,7 +155,7 @@ library(gapminder)
 This function will give you the data for plotting each country:
 
 ```{r }
-map.all <- map_data(map="world")
+map.all <- map_data(map = "world")
 head(map.all) ## region denotes the country
 ```
 

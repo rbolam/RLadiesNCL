@@ -1,8 +1,8 @@
 ---
 title: "Data visualisation tutorial"
 output:
-  html_document: default
   word_document: default
+  html_document: default
 ---
 
 
@@ -24,6 +24,20 @@ Please note: the code you need to type is in the grey boxes. Sometimes comments 
 To start using ggplot2, first open RStudio, then install and load the package using `library(ggplot2)`. As we are working in the cloud today, you won't need to do this (but you will once you use it on your own computer).  
 
 There is a lot of information about ggplot2 online, so if you get stuck you can try to google what you are trying to do. There is also a useful data visualisation cheat sheet - once you have used ggplot2 a bit, it will become more and more useful: https://www.rstudio.com/resources/cheatsheets/
+
+
+## Useful links/resources
+
+
+There is lots of useful info online on making plots with ggplot2, but this book is a great starting point:
+
+Wickham, H. and Grolemund, G. (2016) R for data science. Free at http://r4ds.had.co.nz/ It was written by the guy who wrote the package ggplot2. 
+
+Another useful book is this one: http://www.cookbook-r.com/Graphs/
+
+The evolution of a ggplot: 
+
+https://cedricscherer.netlify.com/2019/05/17/the-evolution-of-a-ggplot-ep.-1/
 
 
 ## A very basic plot in ggplot2
@@ -266,76 +280,11 @@ ggplot(data = gapminder, aes(x = continent, y = gdpPercap)) +
 ```
 
 
-
-## Building an animated plot
-
-We will start building a plot with geom_point:
-
-```{r}
-ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
-  geom_point()
-```
-
-**Exercise**: Change the size of the points according to the variable pop, and the colour according to the continent.
-
-Now we will make the points a bit more transparent, by setting alpha. We will also change the colour of the points:
-
-```{r}
-ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
-  geom_point(alpha = .7) +
-  scale_colour_brewer(palette = "Dark2")
-```
-
-**Exercise**: Change the palette to a different one. Check http://colorbrewer2.org/ for more palettes, and pick one that is colour-blind friendly.
-
-Now we will make subplots, by splitting the data according to the continent:  
-
-```{r}
-ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
-  geom_point(alpha = .7) +
-  facet_wrap(~ continent) +  # we need ~ in front of the variable, as we could facet by another one
-  # then the format would be facet_wrap(variable1 ~ variable2)
-  scale_colour_brewer(palette = "Dark2")
-```
-
-
-We will change a few more things, to make sure this will look really nice in the end:
-
-```{r }
-ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
-  geom_point(alpha = .7) +
-  facet_wrap(~ continent) +
-  scale_colour_brewer(palette = "Dark2") +
-  scale_size(name = "Population") +
-  guides(colour = "none") +
-  scale_x_log10() +
-  labs(x = 'GDP per capita', y = 'Life expectancy')
-```
-
-**Exercise**: What happens in each of the last 4 lines of code?
-
-Finally, we will add the code to make the plot show each year individually. We use the function `transition_time` from the `gganimate` package:
-
-```{r, eval = FALSE}
-ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = continent)) +
-  geom_point(alpha = .7) +
-  facet_wrap(~ continent) +
-  scale_colour_brewer(palette = "Dark2") +
-  scale_size(name = "Population") +
-  guides(colour = "none") +
-  scale_x_log10() +
-  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'Life expectancy') +
-  transition_time(year)
-```
-
-
 ## Saving a plot
 
 Your plots will be saved in the folder that you set as your working directory. This line of code will save the last ggplot you made to a pdf:
 
 ```{r, eval=FALSE}
-ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp)) +
-  geom_point() 
 ggsave("plot.pdf")
 ```
 
