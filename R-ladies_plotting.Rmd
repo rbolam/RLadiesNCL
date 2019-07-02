@@ -52,9 +52,10 @@ ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp,  size = pop, colour = c
 ```
 
 ---
-
 ## Layers
-Just like Ogres and onions, ggplots have layers 
+Just like Ogres and onions, ggplots have layers. 
+
+Simple plots have only a few layers and as we build more layers the plots get more complex...  
 
 ```{r, echo = TRUE, eval = FALSE}
 
@@ -65,10 +66,9 @@ ggplot(data = <DATA>, mapping = aes(<MAPPINGS>)) +
 
 <iframe src="https://giphy.com/embed/kwafZfFxw8WnC" width="480" height="255" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/shrek-kwafZfFxw8WnC">via GIPHY</a></p>
 
-
-  
----  
+---
 ## Data, x, y
+
 
 ``` {r}
 ggplot(data = gapminder, aes(x = gdpPercap, y = lifeExp))
@@ -163,8 +163,6 @@ bxp + theme_stata() + scale_fill_stata()
 ---
 
 # Economist theme
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
 
 ```{r}
     p <- ggplot(mtcars) +
@@ -261,10 +259,11 @@ ggplotly(starwars2)
 ## EmoGG
 
 ```{r}
-#library(emoGG)
+#devtools::install_github("dill/emoGG")
+library(emoGG)
 
-#ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
- # geom_emoji(emoji="1f337")
+ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) +
+  geom_emoji(emoji="1f337")
 ```
 
 ---
