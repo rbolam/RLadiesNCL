@@ -240,32 +240,71 @@ class: inverse, center, middle
 
 ---
 
-# Observation counts before and after 1992 
+# Classify as before/after the end of 1992 
 
-```{r pre_post_prep}
+```{r pre_post_prep_1, echo=TRUE}
 target_year <- 1992
 
 ## Pre & post target_year
 shark_gg_df <- shark_df %>%
   # Up to and including target year or after?
-  mutate(pre_post = case_when(
-    year > target_year ~ "post",
-    TRUE ~ "pre")) %>%
-  select(scientificName, pre_post) %>%
+  mutate(pre_post = ifelse(year > target_year, "post", "pre")) %>%
+  # Only need these columns
+  select(scientificName, pre_post)
+```
+
+```{r view_1}
+slice(shark_gg_df, c(1, 6, 35))
+```
+
+---
+
+# Count records by before/after the end of 1992
+
+```{r pre_post_prep_2, echo=TRUE}
+shark_gg_df <- shark_gg_df %>%
   # Group the data by pre or post target_year
   group_by(pre_post) %>%
     # Count the number of records for each species (puts in column n)
     count(scientificName) %>%
-  ungroup() %>%
+  ungroup() 
+```
+
+```{r view_2}
+head(shark_gg_df, 3)
+tail(shark_gg_df, 3)
+```
+
+---
+
+# Make into "wide" format for ggplot
+
+```{r pre_post_prep_3, echo=TRUE}
+shark_gg_df <- shark_gg_df %>%
   # Columns scientificName, pre (count), post(count)
-  spread(pre_post, n) 
+  spread(pre_post, n)
+```
 
+```{r view_3}
+head(shark_gg_df, 3)
+```
 
+---
+
+# Approximate slope for comparison line
+
+Not at all accurate! Survey effort varied a lot by year.
+
+```{r slope, echo=TRUE}
 # Calculate slope of comparison line by how many years either side of target_year
 # (approximation - takes no account of survey effort)
 slope <- length(which(unique(shark_df$year) > target_year)) / 
   length(which(unique(shark_df$year) <= target_year))
 ```
+
+---
+
+# Comparing number of records pre and post end 1992
 
 ```{r scatterplot_code, echo = TRUE}
 shark_scatter_gg <- shark_gg_df %>%
@@ -331,7 +370,7 @@ shark_missing_gg
 
 ```{r make_labels_fail}
 # Which points should be labelled automatically?
-shark_label_df <- shark_gg_df %>%
+shark_present_df <- shark_gg_df %>%
   # Species of interest
   dplyr::filter(scientificName == species | 
         # Successful post-target_year
@@ -346,7 +385,7 @@ shark_absent_df <- shark_gg_df %>%
   # Thresholds determined by eye
   dplyr::filter(pre > 35 | post > 500) 
 
-shark_all_labels_df <- bind_rows(shark_label_df, shark_absent_df)
+shark_labels_df <- dplyr::bind_rows(shark_present_df, shark_absent_df)
 ```
 
 ```{r label-fail, echo = TRUE}
@@ -357,11 +396,11 @@ shark_label_gg <- shark_missing_gg +
       col = highlight_colour, size = 3)}} +
     # Label all species of interest with ggrepel
     # ggrepel stops your text labels overlapping
-   {{ggrepel::geom_text_repel(data = shark_all_labels_df,
+   {{ggrepel::geom_text_repel(data = shark_labels_df,
       aes(label = scientificName),
-      # Avoids ambiguity 
-      nudge_x = 15, 
-      nudge_y = ifelse((shark_label_df$scientificName == species), 0, 15), 
+      # Avoids ambiguity - moving the labels away from the points means
+      # it will make a short line from the label to the exact point
+      nudge_x = 15, nudge_y = 15,
       size = 9, segment.size = 0.75, point.padding = 0.75)}}
 ```
 
@@ -385,11 +424,11 @@ shark_label_gg <- shark_missing_gg +
     geom_point(data = dplyr::filter(shark_gg_df, scientificName == species), 
       col = highlight_colour, size = 3) +
     # ggrepel only works for non-missing data; label species of interest
-   {{ggrepel::geom_text_repel(data = shark_label_df,
+   {{ggrepel::geom_text_repel(data = shark_present_df,
       aes(label = scientificName),
       # Avoids ambiguity or overlapping with manual labels 
       nudge_x = 22, 
-      nudge_y = ifelse(shark_label_df$scientificName == species, 0, 15), 
+      nudge_y = ifelse(shark_present_df$scientificName == species, 0, 15), 
       # Point padding stops lines obscuring points
       size = 9, segment.size = 0.75, point.padding = 0.75)}}
 ```
@@ -442,11 +481,13 @@ shark_label_gg
 Those `NA`s are graphed as though they were negative values.
 
 ```{r better_labels, echo = TRUE}
-shark_all_labels_df <- shark_absent_df %>%
+shark_labels_df <- shark_absent_df %>%
   # Replace all the NA values in the pre and post columns
   # This will be a bit approximate because of jitter
   tidyr::replace_na(list(pre = -35, post = -175)) %>%
-  bind_rows(shark_label_df)
+  # Glue all the labels together, because now they will all work with ggrepel
+  bind_rows(shark_present_df)
+
 ```
 
 Now we don't need all that `annotate` stuff.
@@ -455,20 +496,29 @@ Now we don't need all that `annotate` stuff.
 
 # The better way
 
-```{r , fig.height = 10, fig.width = 15}
+I can just add all the labels at once now, and `ggrepel` can take care of where
+they go.
+
+```{r final_code, echo = TRUE}
 shark_label_gg <- shark_missing_gg +
     # Colour my target species
     geom_point(data = dplyr::filter(shark_gg_df, scientificName == species), 
       col = highlight_colour, size = 3) +
     # ggrepel only works for non-missing data; label species of interest
-   {{ggrepel::geom_text_repel(data = shark_all_labels_df,
+   {{ggrepel::geom_text_repel(data = shark_labels_df,
       aes(label = scientificName),
       # Avoids ambiguity or overlapping with manual labels 
       nudge_x = 22, 
       nudge_y = 15, 
       # Point padding stops lines obscuring points
       size = 9, segment.size = 0.75, point.padding = 0.75)}}
+```
 
+---
+
+# And here we are
+
+```{r final, fig.height = 10, fig.width = 15}
 shark_label_gg
 ```
 

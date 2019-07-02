@@ -193,9 +193,101 @@ class: inverse, center, middle
 
 ---
 
-# Observation counts before and after 1992 
+# Classify as before/after the end of 1992 
 
 
+```r
+target_year &lt;- 1992
+
+## Pre &amp; post target_year
+shark_gg_df &lt;- shark_df %&gt;%
+  # Up to and including target year or after?
+  mutate(pre_post = ifelse(year &gt; target_year, "post", "pre")) %&gt;%
+  # Only need these columns
+  select(scientificName, pre_post)
+```
+
+
+```
+## # A tibble: 3 x 2
+##   scientificName         pre_post
+##   &lt;chr&gt;                  &lt;chr&gt;   
+## 1 Echinocardium cordatum post    
+## 2 Levinsenia gracilis    pre     
+## 3 Artacama proboscidea   post
+```
+
+---
+
+# Count records by before/after the end of 1992
+
+
+```r
+shark_gg_df &lt;- shark_gg_df %&gt;%
+  # Group the data by pre or post target_year
+  group_by(pre_post) %&gt;%
+    # Count the number of records for each species (puts in column n)
+    count(scientificName) %&gt;%
+  ungroup() 
+```
+
+
+```
+## # A tibble: 3 x 3
+##   pre_post scientificName           n
+##   &lt;chr&gt;    &lt;chr&gt;                &lt;int&gt;
+## 1 post     Abietinaria abietina     2
+## 2 post     Abra alba              465
+## 3 post     Abra nitida           1024
+```
+
+```
+## # A tibble: 3 x 3
+##   pre_post scientificName           n
+##   &lt;chr&gt;    &lt;chr&gt;                &lt;int&gt;
+## 1 pre      Vitreolina philippi      4
+## 2 pre      Westwoodilla caecula   124
+## 3 pre      Yoldiella lucida         1
+```
+
+---
+
+# Make into "wide" format for ggplot
+
+
+```r
+shark_gg_df &lt;- shark_gg_df %&gt;%
+  # Columns scientificName, pre (count), post(count)
+  spread(pre_post, n)
+```
+
+
+```
+## # A tibble: 3 x 3
+##   scientificName        post   pre
+##   &lt;chr&gt;                &lt;int&gt; &lt;int&gt;
+## 1 Abietinaria abietina     2    NA
+## 2 Abra alba              465    34
+## 3 Abra nitida           1024   251
+```
+
+---
+
+# Approximate slope for comparison line
+
+Not at all accurate! Survey effort varied a lot by year.
+
+
+```r
+# Calculate slope of comparison line by how many years either side of target_year
+# (approximation - takes no account of survey effort)
+slope &lt;- length(which(unique(shark_df$year) &gt; target_year)) / 
+  length(which(unique(shark_df$year) &lt;= target_year))
+```
+
+---
+
+# Comparing number of records pre and post end 1992
 
 
 ```r
@@ -265,11 +357,11 @@ shark_label_gg &lt;- shark_missing_gg +
 *      col = highlight_colour, size = 3) +
     # Label all species of interest with ggrepel
     # ggrepel stops your text labels overlapping
-*   ggrepel::geom_text_repel(data = shark_all_labels_df,
+*   ggrepel::geom_text_repel(data = shark_labels_df,
 *      aes(label = scientificName),
-*      # Avoids ambiguity 
-*      nudge_x = 15, 
-*      nudge_y = ifelse((shark_label_df$scientificName == species), 0, 15), 
+*      # Avoids ambiguity - moving the labels away from the points means
+*      # it will make a short line from the label to the exact point
+*      nudge_x = 15, nudge_y = 15,
 *      size = 9, segment.size = 0.75, point.padding = 0.75)
 ```
 
@@ -297,11 +389,11 @@ shark_label_gg &lt;- shark_missing_gg +
     geom_point(data = dplyr::filter(shark_gg_df, scientificName == species), 
       col = highlight_colour, size = 3) +
     # ggrepel only works for non-missing data; label species of interest
-*   ggrepel::geom_text_repel(data = shark_label_df,
+*   ggrepel::geom_text_repel(data = shark_present_df,
 *      aes(label = scientificName),
 *      # Avoids ambiguity or overlapping with manual labels 
 *      nudge_x = 22, 
-*      nudge_y = ifelse(shark_label_df$scientificName == species, 0, 15), 
+*      nudge_y = ifelse(shark_present_df$scientificName == species, 0, 15), 
 *      # Point padding stops lines obscuring points
 *      size = 9, segment.size = 0.75, point.padding = 0.75)
 ```
@@ -354,11 +446,12 @@ Those `NA`s are graphed as though they were negative values.
 
 
 ```r
-shark_all_labels_df &lt;- shark_absent_df %&gt;%
+shark_labels_df &lt;- shark_absent_df %&gt;%
   # Replace all the NA values in the pre and post columns
   # This will be a bit approximate because of jitter
   tidyr::replace_na(list(pre = -35, post = -175)) %&gt;%
-  bind_rows(shark_label_df)
+  # Glue all the labels together, because now they will all work with ggrepel
+  bind_rows(shark_present_df)
 ```
 
 Now we don't need all that `annotate` stuff.
@@ -367,7 +460,30 @@ Now we don't need all that `annotate` stuff.
 
 # The better way
 
-![](Cowtan_RLadies_Newcastle_20190702_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+I can just add all the labels at once now, and `ggrepel` can take care of where
+they go.
+
+
+```r
+shark_label_gg &lt;- shark_missing_gg +
+    # Colour my target species
+    geom_point(data = dplyr::filter(shark_gg_df, scientificName == species), 
+      col = highlight_colour, size = 3) +
+    # ggrepel only works for non-missing data; label species of interest
+*   ggrepel::geom_text_repel(data = shark_labels_df,
+*      aes(label = scientificName),
+*      # Avoids ambiguity or overlapping with manual labels 
+*      nudge_x = 22, 
+*      nudge_y = 15, 
+*      # Point padding stops lines obscuring points
+*      size = 9, segment.size = 0.75, point.padding = 0.75)
+```
+
+---
+
+# And here we are
+
+![](Cowtan_RLadies_Newcastle_20190702_files/figure-html/final-1.png)&lt;!-- --&gt;
 
 ---
 
